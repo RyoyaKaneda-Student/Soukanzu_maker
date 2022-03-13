@@ -1,0 +1,47 @@
+version: "3"
+services:
+  nuxt:
+    container_name: nuxt
+    build: 
+      context: ./Dockerfile/.
+      dockerfile: Dockerfile_nuxt
+    platform: linux/amd64 # M1チップ対応のため追記
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./:/var/www/html"
+    tty: true
+
+  # MySQL
+  db:
+    container_name: db
+    image: mysql/mysql-server:5.7.28
+    platform: linux/amd64 # M1チップ対応のため追記
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: docker_db
+      MYSQL_USER: docker_user
+      MYSQL_PASSWORD: docker_pass
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - ./database/data:/var/lib/mysql
+      - ./database/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./database/sql/init:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # phpMyAdmin
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    platform: linux/amd64 # M1チップ対応のため追記
+    depends_on:
+      - db
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db
+      - PMA_USER=docker_user
+      - PMA_PASSWORD=docker_pass
+    ports:
+      - 8000:80
