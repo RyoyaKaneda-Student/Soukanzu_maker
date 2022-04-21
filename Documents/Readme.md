@@ -20,7 +20,7 @@
 
 # Documents内のファイルについて
 
-＃＃ Readme
+## Readme
 このファイル
 
 # 使用する用語
